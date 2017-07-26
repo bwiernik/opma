@@ -1,6 +1,6 @@
 ' Open Psychometric Meta-Analyis (Excel)
 ' Created by Brenton M. Wiernik
-' version 1.0b8
+' version 1.0b9
 
 '    Open Psychometric Meta-Analysis (Excel) -- VBA scripts for conducting psychometric
 '    meta-analysis using Microsoft Excel.
@@ -73,19 +73,43 @@
 ' UpCVmeanD = Upper value of 80% credibility interval for mean d
 ' LoCVmeanD = Lower value of 80% credibility interval for mean d
 
+Function IsMac() As Boolean
+#If Mac Then
+    IsMac = True
+#End If
+End Function
+
+Function Is64BitOffice() As Boolean
+#If Win64 Then
+    Is64BitOffice = True
+#End If
+End Function
+
+Function Excelversion() As Double
+'Win Excel versions are always a whole number (15)
+'Mac Excel versions show also the number of the update (15.29)
+    Excelversion = Val(Application.Version)
+End Function
+
+Function NeedCompatMode() As Boolean
+  #If IsMac Then
+    #If Excelversion < 15 Then
+       NeedCompatMode = True
+    #Else
+       NeedCompatMode = False
+    #End If
+  #Else
+    #If Excelversion < 14 Then
+       NeedCompatMode = True
+    #Else
+       NeedCompatMode = False
+    #End If
+  #End If
+End Function
+
 Function TruncNorm(Min As Double, Max As Double, Mean As Variant, SD As Variant)
   Randomize ' Initialize the random number generator
-  If Val(Application.Version) < 15 Then
-    If Application.OperatingSystem Like "*Mac*" Then
-      CompatMode = True
-    ElseIf Val(Application.Version) < 14 Then
-      CompatMode = True
-    Else
-      CompatMode = False
-    End If
-  Else
-    CompatMode = False
-  End If
+  CompatMode = NeedCompatMode
     
   If CompatMode Then
     MinD = WorksheetFunction.NormDist(Min, Mean, SD, True)
@@ -106,17 +130,7 @@ Sub MetaAnalysisR()
 Application.ScreenUpdating = False
 
 ' Set up control parameters based on OS version and options set via worksheet controls
-If Application.Version < 15 Then
-  If Application.OperatingSystem Like "*Mac*" Then
-    CompatMode = True
-  ElseIf Application.Version < 14 Then
-    CompatMode = True
-  Else
-    CompatMode = False
-  End If
-Else
-  CompatMode = False
-End If
+CompatMode = NeedCompatMode
 
 Dim alert As Integer
 
@@ -588,21 +602,21 @@ If CorrectRR Then ' Skip this if not correcting for range restriction
             MeanBigUx = 1 / Meanux
           End If
           MeanRxxa = 1 - (Meanux ^ 2 * (1 - MeanRxxi))
-          If Not IsEmpty(SDRxxi) Then SDRxxa = Sqr(WorksheetFunction.Max(0,1 + (Meanux ^ 2 * (Meanux ^ 2 - 2)) + (2 * Meanux ^ 2 * MeanRxxi * (1 - Meanux ^ 2)) + (Meanux ^ 4 * (SDRxxi ^ 2 + MeanRxxi ^ 2)) - MeanRxxa ^ 2))
+          If Not IsEmpty(SDRxxi) Then SDRxxa = Sqr(WorksheetFunction.Max(0, 1 + (Meanux ^ 2 * (Meanux ^ 2 - 2)) + (2 * Meanux ^ 2 * MeanRxxi * (1 - Meanux ^ 2)) + (Meanux ^ 4 * (SDRxxi ^ 2 + MeanRxxi ^ 2)) - MeanRxxa ^ 2))
           MeanQualxa = 1 - (Meanux ^ 2 * (1 - MeanQualxi))
-          SDQualxa = Sqr(WorksheetFunction.Max(0,MeanRxxa - MeanQualxa ^ 2))
+          SDQualxa = Sqr(WorksheetFunction.Max(0, MeanRxxa - MeanQualxa ^ 2))
         ElseIf Not SpecDistu Then
           If Observedu Then
             MeanRxxa = 1 - (MeanU ^ 2 * (1 - MeanRxxi))
-            If Not IsEmpty(SDRxxi) Then SDRxxa = Sqr(WorksheetFunction.Max(0,1 + (MeanU ^ 2 * (MeanU ^ 2 - 2)) + (2 * MeanU ^ 2 * MeanRxxi * (1 - MeanU ^ 2)) + (MeanU ^ 4 * (SDRxxi ^ 2 + MeanRxxi ^ 2)) - MeanRxxa ^ 2))
+            If Not IsEmpty(SDRxxi) Then SDRxxa = Sqr(WorksheetFunction.Max(0, 1 + (MeanU ^ 2 * (MeanU ^ 2 - 2)) + (2 * MeanU ^ 2 * MeanRxxi * (1 - MeanU ^ 2)) + (MeanU ^ 4 * (SDRxxi ^ 2 + MeanRxxi ^ 2)) - MeanRxxa ^ 2))
             MeanQualxa = 1 - (MeanU ^ 2 * (1 - MeanQualxi))
-            SDQualxa = Sqr(WorksheetFunction.Max(0,MeanRxxa - MeanQualxa ^ 2))
+            SDQualxa = Sqr(WorksheetFunction.Max(0, MeanRxxa - MeanQualxa ^ 2))
           ElseIf Not Observedu Then
             Meanux = Sqr((MeanU ^ 2) / (MeanU ^ 2 + MeanRxxi * (1 - MeanU ^ 2)))
             MeanRxxa = 1 - (Meanux ^ 2 * (1 - MeanRxxi))
-            If Not IsEmpty(SDRxxi) Then SDRxxa = Sqr(WorksheetFunction.Max(0,1 + (Meanux ^ 2 * (Meanux ^ 2 - 2)) + (2 * Meanux ^ 2 * MeanRxxi * (1 - Meanux ^ 2)) + (Meanux ^ 4 * (SDRxxi ^ 2 + MeanRxxi ^ 2)) - MeanRxxa ^ 2))
+            If Not IsEmpty(SDRxxi) Then SDRxxa = Sqr(WorksheetFunction.Max(0, 1 + (Meanux ^ 2 * (Meanux ^ 2 - 2)) + (2 * Meanux ^ 2 * MeanRxxi * (1 - Meanux ^ 2)) + (Meanux ^ 4 * (SDRxxi ^ 2 + MeanRxxi ^ 2)) - MeanRxxa ^ 2))
             MeanQualxa = 1 - (Meanux ^ 2 * (1 - MeanQualxi))
-            SDQualxa = Sqr(WorksheetFunction.Max(0,MeanRxxa - MeanQualxa ^ 2))
+            SDQualxa = Sqr(WorksheetFunction.Max(0, MeanRxxa - MeanQualxa ^ 2))
           End If
         End If
       ElseIf Not SpecDistx Then
@@ -646,9 +660,9 @@ If CorrectRR Then ' Skip this if not correcting for range restriction
           SumQualx = SumQualx + Sqr(RXa(i, 1)) * RXa(i, 2)
         Next i
         MeanRxxa = SumRxx / SumRxxFreq
-        SDRxxa = Sqr(WorksheetFunction.Max(0,(SumRxxSq / SumRxxFreq) - (SumRxx / SumRxxFreq) ^ 2))
+        SDRxxa = Sqr(WorksheetFunction.Max(0, (SumRxxSq / SumRxxFreq) - (SumRxx / SumRxxFreq) ^ 2))
         MeanQualxa = SumQualx / SumRxxFreq
-        SDQualxa = Sqr(WorksheetFunction.Max(0,(SumRxx / SumRxxFreq) - (SumQualx / SumRxxFreq) ^ 2))
+        SDQualxa = Sqr(WorksheetFunction.Max(0, (SumRxx / SumRxxFreq) - (SumQualx / SumRxxFreq) ^ 2))
       End If
     ElseIf RelUnrestx Then
       MeanRxxa = MeanRxx
@@ -662,22 +676,22 @@ If CorrectRR Then ' Skip this if not correcting for range restriction
             MeanBigUx = 1 / Meanux
           End If
           MeanRxxi = 1 - (MeanBigUx ^ 2 * (1 - MeanRxxa)) ' TODO: Handle the problem with very low ux and rxxa
-          If Not IsEmpty(SDRxxa) Then SDRxxi = Sqr(WorksheetFunction.Max(0,1 + (MeanBigUx ^ 2 * (MeanBigUx ^ 2 - 2)) + (2 * MeanBigUx ^ 2 * MeanRxxa * (1 - MeanBigUx ^ 2)) + (MeanBigUx ^ 4 * (SDRxxa ^ 2 + MeanRxxa ^ 2)) - MeanRxxi ^ 2)) ' TODO: Handle the problem with very low ux and rxxa
+          If Not IsEmpty(SDRxxa) Then SDRxxi = Sqr(WorksheetFunction.Max(0, 1 + (MeanBigUx ^ 2 * (MeanBigUx ^ 2 - 2)) + (2 * MeanBigUx ^ 2 * MeanRxxa * (1 - MeanBigUx ^ 2)) + (MeanBigUx ^ 4 * (SDRxxa ^ 2 + MeanRxxa ^ 2)) - MeanRxxi ^ 2)) ' TODO: Handle the problem with very low ux and rxxa
           MeanQualxi = 1 - (MeanBigUx ^ 2 * (1 - MeanQualxa)) ' TODO: Handle the problem with very low ux and rxxa
-          SDQualxi   = Sqr(WorksheetFunction.Max(0, MeanRxxi - MeanQualxi^2 ))
+          SDQualxi = Sqr(WorksheetFunction.Max(0, MeanRxxi - MeanQualxi ^ 2))
         ElseIf Not SpecDistu Then
           If Observedu Then
             MeanRxxi = 1 - (MeanBigU ^ 2 * (1 - MeanRxxa)) ' TODO: Handle the problem with very low ux and rxxa
             If Not IsEmpty(SDRxxa) Then SDRxxi = Sqr(1 + (MeanBigU ^ 2 * (MeanBigU ^ 2 - 2)) + (2 * MeanBigU ^ 2 * MeanRxxa * (1 - MeanBigU ^ 2)) + (MeanBigU ^ 4 * (SDRxxa ^ 2 + MeanRxxa ^ 2)) - MeanRxxi ^ 2) ' TODO: Handle the problem with very low ux and rxxa, Protect against floating point errors
             MeanQualxi = 1 - (MeanBigU ^ 2 * (1 - MeanQualxa)) ' TODO: Handle the problem with very low ux and rxxa
-            SDQualxi   = Sqr(WorksheetFunction.Max(0, MeanRxxi - MeanQualxi^2 ))
+            SDQualxi = Sqr(WorksheetFunction.Max(0, MeanRxxi - MeanQualxi ^ 2))
           ElseIf Not Observedu Then
             Meanux = Sqr((MeanRxxa * MeanuT ^ 2) - MeanRxxa + 1)
             MeanBigUx = 1 / Meanux
             MeanRxxi = 1 - (MeanBigUx ^ 2 * (1 - MeanRxxa)) ' TODO: Handle the problem with very low ux and rxxa
-            If Not IsEmpty(SDRxxa) Then SDRxxi = Sqr(WorksheetFunction.Max(0,1 + (MeanBigUx ^ 2 * (MeanBigUx ^ 2 - 2)) + (2 * MeanBigUx ^ 2 * MeanRxxa * (1 - MeanBigUx ^ 2)) + (MeanBigUx ^ 4 * (SDRxxa ^ 2 + MeanRxxa ^ 2)) - MeanRxxi ^ 2)) ' Handle the problem with very low ux and rxxa
+            If Not IsEmpty(SDRxxa) Then SDRxxi = Sqr(WorksheetFunction.Max(0, 1 + (MeanBigUx ^ 2 * (MeanBigUx ^ 2 - 2)) + (2 * MeanBigUx ^ 2 * MeanRxxa * (1 - MeanBigUx ^ 2)) + (MeanBigUx ^ 4 * (SDRxxa ^ 2 + MeanRxxa ^ 2)) - MeanRxxi ^ 2)) ' Handle the problem with very low ux and rxxa
             MeanQualxi = 1 - (MeanBigUx ^ 2 * (1 - MeanQualxa)) ' TODO: Handle the problem with very low ux and rxxa
-            SDQualxi   = Sqr(WorksheetFunction.Max(0, MeanRxxi - MeanQualxi^2 ))
+            SDQualxi = Sqr(WorksheetFunction.Max(0, MeanRxxi - MeanQualxi ^ 2))
           End If
         End If
       ElseIf Not SpecDistx Then
@@ -777,7 +791,7 @@ If CorrectRR Then ' Skip this if not correcting for range restriction
           SumUSq = SumUSq + (Ux(i, 1) ^ 2) * Ux(1, 2)
         Next i
         Meanux = SumU / SumUFreq
-        SDux = Sqr(WorksheetFunction.Max(0,(SumUSq / SumUFreq) - (SumU / SumUFreq) ^ 2))
+        SDux = Sqr(WorksheetFunction.Max(0, (SumUSq / SumUFreq) - (SumU / SumUFreq) ^ 2))
         MeanBigUx = 1 / Meanux
       End If
     End If
