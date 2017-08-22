@@ -1,6 +1,6 @@
 ' Open Psychometric Meta-Analyis (Excel)
 ' Created by Brenton M. Wiernik
-' version 1.0b9
+' version 1.0.0
 
 '    Open Psychometric Meta-Analysis (Excel) -- VBA scripts for conducting psychometric
 '    meta-analysis using Microsoft Excel.
