@@ -1,6 +1,6 @@
 ' Open Psychometric Meta-Analyis (Excel)
 ' Created by Brenton M. Wiernik
-' version 1.0.0
+' version 1.0.1
 
 '    Open Psychometric Meta-Analysis (Excel) -- VBA scripts for conducting psychometric
 '    meta-analysis using Microsoft Excel.
@@ -430,7 +430,7 @@ If CorrectRyy And Not SpecDisty Then
   MeanRyy = SumRyy / SumRyyFreq
   SDRyy = Sqr(WorksheetFunction.Max(0, (SumRyySq / SumRyyFreq) - (SumRyy / SumRyyFreq) ^ 2))
   MeanQualy = SumQualy / SumRyyFreq
-  SDQualy = Sqr(WorksheetFunction.Max(0, (SumRxx / SumRxxFreq) - (SumQualx / SumRxxFreq) ^ 2))
+  SDQualy = Sqr(WorksheetFunction.Max(0, (SumRyy / SumRyyFreq) - (SumQualy / SumRyyFreq) ^ 2))
 
 ' Prespecified ryy distribution
 ElseIf CorrectRyy And SpecDisty Then
