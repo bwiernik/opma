@@ -1,4 +1,4 @@
-# Open Psychometric Meta-Analysis (OPMA-Excel)
+# Open Psychometric Meta-Analysis (OPMA)
 
 Excel-based open-source psychometric meta-analysis package. Please submit issues with any bugs.
 
